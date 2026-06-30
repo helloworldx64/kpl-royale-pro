@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/hud.css">
 <link rel="stylesheet" href="css/mobile.css">
+<link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 <div id="wrap"><canvas id="c"></canvas></div>
@@ -39,6 +40,7 @@
   <div id="comboBanner"></div>
   <div id="toast"></div>
   <div id="mpScore" class="hidden"></div>
+  <div id="themeBadge" class="theme-badge"></div>
   <div id="quiz">
     <div class="medal">×</div>
     <div class="meta"><span class="tagx" id="qTag">כפל</span></div>
@@ -77,6 +79,7 @@
     <kbd>Esc / P</kbd><span>השהיה</span>
   </div>
   <div id="startBest" style="color:var(--dim);font-weight:800;font-size:14px;"></div>
+  <div id="lifetimeStats" class="lifetime-stats"></div>
   <p style="font-size:12px;color:var(--dim);">המשחק מתאים את הרמה אוטומטית • שיא: <span id="bestLabel">0</span></p>
 </div>
 
@@ -142,9 +145,27 @@
 
 <!-- ACHIEVEMENTS / SKINS drawer (on start screen) -->
 <div id="drawerToggle" style="position:fixed;bottom:18px;right:18px;z-index:31;pointer-events:auto;cursor:pointer;background:rgba(10,16,34,.8);border:2px solid var(--gold);border-radius:12px;padding:10px 14px;color:var(--gold);font:900 14px var(--font-display);box-shadow:0 0 16px rgba(251,191,36,.4);">🏆 הישגים</div>
+<div id="helpToggle" style="position:fixed;bottom:18px;left:18px;z-index:31;pointer-events:auto;cursor:pointer;background:rgba(10,16,34,.8);border:2px solid var(--cyan);border-radius:12px;padding:10px 14px;color:var(--cyan);font:900 14px var(--font-display);box-shadow:0 0 16px rgba(34,211,238,.4);">? עזרה</div>
+<div id="helpDialog" class="hidden">
+  <div class="card">
+    <h2>איך משחקים?</h2>
+    <div id="helpContent"></div>
+    <button class="btn sm close" id="btnHelpClose">הבנתי</button>
+  </div>
+</div>
 <div id="drawer" class="hidden" style="position:fixed;inset:0;z-index:32;background:rgba(7,11,24,.96);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px;overflow:auto;">
   <h2 style="color:var(--gold);">הישגים וסקינים</h2>
   <div id="achList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-width:600px;width:100%;"></div>
+  <h3 style="color:var(--cyan);margin-top:8px;">טבלת שליטה</h3>
+  <div id="dashWrap">
+    <canvas id="dashCanvas" width="420" height="420"></canvas>
+    <div id="dashDetail"></div>
+  </div>
+  <div id="dashLegend">
+    <span>טרם תורגל<span class="sw" style="background:rgba(248,113,113,.18)"></span></span>
+    <span>בתהליך<span class="sw" style="background:rgba(251,191,36,.6)"></span></span>
+    <span>שולט<span class="sw" style="background:rgba(52,211,153,.85)"></span></span>
+  </div>
   <h3 style="color:var(--cyan);margin-top:8px;">סקינים</h3>
   <div id="skinGrid" class="skin-grid"></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -161,19 +182,19 @@
 document.getElementById('drawerToggle').addEventListener('click', async () => {
   const d = document.getElementById('drawer'); d.classList.toggle('hidden');
   if (!d.classList.contains('hidden')) {
-    // populate achievements
     const store = (await import('./js/core/storage.js')).store;
     const ACHS = (await import('./js/data/config.js')).ACHIEVEMENTS;
-    const Screens = await import('./js/ui/screens.js');
+    const SKINS = (await import('./js/data/config.js')).SKINS;
+    const { Dashboard } = await import('./js/ui/dashboard.js');
+    // achievements
     const list = document.getElementById('achList'); list.innerHTML = '';
     for (const a of ACHS) {
       const got = store.hasAch(a.id);
-      const el = document.createElement('div'); el.style.cssText = `background:rgba(255,255,255,.04);border:1px solid ${got ? 'var(--gold)' : 'rgba(255,255,255,.1)'};border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px;${got ? '' : 'opacity:.5'}`;
-      el.innerHTML = `<span style="font-size:22px">${a.icon}</span><span style="font-weight:800;font-size:13px;color:${got ? 'var(--gold)' : 'var(--dim)'}">${a.name}</span>`;
+      const el = document.createElement('div'); el.className = got ? 'got' : '';
+      el.innerHTML = `<span class="ic" style="color:${got ? 'var(--gold)' : 'var(--dim)'}">${a.icon}</span><span class="tx">${a.name}</span>${got ? '' : '<span class="lk">🔒</span>'}`;
       list.appendChild(el);
     }
-    // populate skins
-    const SKINS = (await import('./js/data/config.js')).SKINS;
+    // skins
     const grid = document.getElementById('skinGrid'); grid.innerHTML = '';
     for (const s of SKINS) {
       const unlocked = store.hasSkin(s.id);
@@ -181,9 +202,28 @@ document.getElementById('drawerToggle').addEventListener('click', async () => {
       c.innerHTML = `<div class="skin-swatch" style="--sc:${s.body};--ac:${s.accent}"></div><div class="skin-name">${s.name}</div><div class="skin-stars">${unlocked ? '★ ' + s.stars : '🔒 ' + s.stars + '★'}</div>`;
       grid.appendChild(c);
     }
+    // dashboard
+    const dc = document.getElementById('dashCanvas');
+    const dash = new Dashboard(dc);
+    const detail = document.getElementById('dashDetail');
+    dash.render();
+    dc.onmousemove = (e) => { dash.render(); const det = dash.detail(); if (det) { detail.textContent = det; detail.classList.add('show'); } else detail.classList.remove('show'); };
+    dc.onmouseleave = () => detail.classList.remove('show');
   }
 });
 document.getElementById('btnDrawerClose').addEventListener('click', () => document.getElementById('drawer').classList.add('hidden'));
+document.getElementById('helpToggle').addEventListener('click', async () => {
+  const HELP = (await import('./js/data/config.js')).HELP;
+  const d = document.getElementById('helpDialog'); d.classList.remove('hidden');
+  const c = document.getElementById('helpContent'); c.innerHTML = '';
+  const labels = { goal:'המטרה', boxTypes:'סוגי תיבות', combo:'רצץ', adaptive:'התאמה אוטומטית', multiplayer:'דו-קרב', powerups:'פאוור-אפים', controls:'שליטה' };
+  for (const k in labels) {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = `<div class="h">${labels[k]}</div><div class="t">${HELP[k]}</div>`;
+    c.appendChild(r);
+  }
+});
+document.getElementById('btnHelpClose').addEventListener('click', () => document.getElementById('helpDialog').classList.add('hidden'));
 document.getElementById('btnCopy').addEventListener('click', () => {
   const code = document.getElementById('mpCodeDisplay').textContent;
   if (navigator.clipboard) navigator.clipboard.writeText(code);

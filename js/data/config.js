@@ -197,3 +197,45 @@ export const ACHIEVEMENTS = [
   { id: 'mp_play',       name: 'אתגר חברים',      icon: '🤝', cond: g => g.mpGames >= 1 },
   { id: 'mp_win',        name: 'אלוף רב-שחקנים',  icon: '🥇', cond: g => g.mpWins >= 1 },
 ];
+
+// Difficulty tier descriptors (used for UI badges + adapt messaging)
+export const DIFFICULTY_TIERS = [
+  { id: 'rookie',    name: 'טירון',       maxF: 3,  color: '#34D399', minLevel: 1 },
+  { id: 'cadet',     name: ' debí',      maxF: 4,  color: '#22D3EE', minLevel: 3 },
+  { id: 'pilot',     name: 'טייס',        maxF: 6,  color: '#3B82F6', minLevel: 6 },
+  { id: 'ace',       name: 'אלוף טייס',   maxF: 8,  color: '#A78BFA', minLevel: 10 },
+  { id: 'master',    name: 'מאסטר',       maxF: 10, color: '#F472B6', minLevel: 15 },
+  { id: 'legend',    name: 'אגדה',        maxF: 12, color: '#FBBF24', minLevel: 21 },
+];
+
+// Per-level hand-tuned spawn tweaks (optional overrides)
+export const LEVEL_TWEAKS = {
+  1:  { bombChance: 0,    desc: 'התחלה — רק תיבות רגילות' },
+  2:  { desc: 'טורבו ודש מתאפשרים' },
+  3:  { desc: 'תיבות זהב מופיעות' },
+  4:  { desc: 'פצצות מופיעות — זהירות!' },
+  5:  { challenge: true, bombBoost: true, desc: 'אתגר: בומבל' },
+  6:  { desc: 'תיבות זזות, נושא חלל' },
+  7:  { desc: 'תיבות מגה ופאוור-אפים' },
+  8:  { desc: 'תיבות תעלומה' },
+  10: { challenge: true, moveBoost: true, desc: 'אתגר: מהירות כפולה' },
+  12: { desc: 'נושא ג\'ונגל' },
+  15: { challenge: true, desc: 'אתגר: לבה עולה' },
+  18: { desc: 'נושא ממתקים' },
+  20: { challenge: true, noSkip: true, desc: 'אתגר: ללא ויתורים' },
+  24: { desc: 'נושא אוקיינוס' },
+  25: { challenge: true, megaBoost: true, desc: 'אתגר: מגה-מטור' },
+  30: { challenge: true, allBoost: true, desc: 'אתגר: כל האתגרים' },
+};
+
+// Help / FAQ strings (shown in a help dialog)
+export const HELP = {
+  goal: 'פתחי תיבות כפל על ידי נגיעה בהן עם הבלוק שלך, עני נכוחה, ואסוף אבנים. הגיעי למטרת השלב כדי לעלות.',
+  boxTypes: 'תיבות זהב = ×2 ניקוד. פצצות = עני לפני שהפתיל נגמר! מגה = ×3 + פאוור-אפ. תעלומה = הפתעה.',
+  combo: 'כל תשובה נכונה ברצף מעלה את המכפיל. טעות מאפסת את הרצץ. ב-x5 נפתחות תיבות רצץ מיוחדות.',
+  adaptive: 'המשחק זוכר אילו תרגילים קשים לך ומתרגל אותם יותר. ככל שמשתפרת — הרמה עולה.',
+  multiplayer: 'בדו-קרב: צרי חדר, שתפי את הקוד עם חבר, והראשון שפותר את מטרת השלב מנצח.',
+  powerups: 'מגן בולם טעות אחת. ×2 מכפיל ניקוד. מגנט מושך אבנים. הקפאה עוצרת זמן. הילוך איטי מאט הכל.',
+  controls: 'חצים/WASD = תנועה. Shift = טורבו. רווח = דש. 1-4 או עכבר = תשובות. S = דילוג. Esc/P = השהיה.',
+};
+

@@ -15,6 +15,7 @@ class Screens {
     this._wire(onStartSolo, onStartDuel, onNext, onRetry, onResume, onQuit, onHost, onJoin);
     this._decorateStart();
     this._populateSkins();
+    this.renderLifetimeStats();
   }
 
   _cache() {
@@ -124,9 +125,35 @@ class Screens {
   setMpCode(code) {
     const el = document.getElementById('mpCodeDisplay');
     if (el) el.textContent = code;
+    const box = document.getElementById('mpCodeBox');
+    if (box) box.style.display = 'block';
   }
   getJoinCode() { return (document.getElementById('mpJoinInput') || {}).value || ''; }
-  showMpConnected() { document.getElementById('mpLobby').classList.add('hidden'); document.getElementById('mpWaiting').classList.remove('hidden'); }
+  showMpConnected() {
+    const l = document.getElementById('mpLobby'); if (l) l.classList.add('hidden');
+    const w = document.getElementById('mpWaiting'); if (w) w.classList.remove('hidden');
+  }
+
+  // Show a small stats footer on the start screen (lifetime stats)
+  renderLifetimeStats() {
+    const el = document.getElementById('lifetimeStats');
+    if (!el) return;
+    const s = store.d;
+    el.innerHTML = `
+      <div class="lstat"><span class="n">${fmtNum(s.totalCorrect)}</span><span class="l">תרגילים פתורים</span></div>
+      <div class="lstat"><span class="n">${fmtNum(s.totalGems)}</span><span class="l">אבנים</span></div>
+      <div class="lstat"><span class="n">${s.maxLevel || 1}</span><span class="l">שלב מקסימלי</span></div>
+      <div class="lstat"><span class="n">x${s.bestCombo || 0}</span><span class="l">רצץ שיא</span></div>`;
+  }
+
+  // Highlight newly unlocked achievements on level-up screen
+  showNewAchs(list) {
+    const el = document.getElementById('lvUnlock');
+    if (!el || !list || !list.length) return;
+    const cur = el.textContent;
+    const more = list.map(a => a.icon + ' ' + a.name).join(' • ');
+    el.textContent = (cur ? cur + ' | ' : '') + 'הישגים: ' + more;
+  }
 }
 
 export { Screens };

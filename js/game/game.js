@@ -14,6 +14,7 @@ import { Renderer } from '../engine/renderer.js';
 import { Background } from '../engine/background.js';
 import { Effects } from '../engine/effects.js';
 import { ParticleSystem } from '../engine/particles.js';
+import { ThemeManager } from '../engine/themes.js';
 import { FactsEngine } from './facts.js';
 import { scoring } from './scoring.js';
 import { levels } from './levels.js';
@@ -33,6 +34,7 @@ class Game {
     this.effects = new Effects(store.get('settings').reduceMotion);
     this.particles = new ParticleSystem(device.particleCap());
     this.facts = new FactsEngine();
+    this.themes = new ThemeManager();
     this.input = new Input(canvas);
     this.reduce = store.get('settings').reduceMotion || device.isMobile && false;
 
@@ -82,7 +84,13 @@ class Game {
     this.invuln = 0; this.score2xT = 0; this.magnetT = 0; this.freezeT = 0; this.slowmoT = 0; this.shieldCharge = 0;
     this.hue = 200 + ((lv * 40) % 160);
     this.facts.setCeilingForLevel(lv);
-    this.background.setHue(this.hue);
+    this.themes.setForLevel(lv);
+    this.themes.clear();
+    this.background.setHue(this.themes.hue());
+    if (this._lastTheme !== this.themes.id() && lv > 1) {
+      this._lastTheme = this.themes.id();
+      if (this.cb.onTheme) this.cb.onTheme(this.themes.label());
+    } else this._lastTheme = this.themes.id();
     const b = this.bounds();
     this.p = { x: (b.l + b.r) / 2, y: (b.t + b.b) / 2, r: 21, vx: 0, vy: 0, angle: 0, facing: 0, trail: [], squash: 1, dashGhost: [], shield: 0 };
     for (let i = 0; i < 4; i++) this.boxes.push(spawnBox(levels.pickType(lv, this.combo, this.hearts, this.maxHearts), b, lv, this.p));
@@ -431,8 +439,21 @@ class Game {
     // level timer
     if (this.state === S.PLAY && !frozen) {
       this.levelTime -= dt;
+      // low-time heartbeat
+      const tWhole = Math.ceil(this.levelTime);
+      if (tWhole <= 10 && tWhole > 0 && tWhole !== this._lastTWhole) {
+        this._lastTWhole = tWhole;
+        audio.countdown();
+        if (tWhole <= 5) { this.effects.flash('rgba(248,113,113,0.18)', 0.4, 0.25); device.vibrate(30); }
+      }
       if (this.levelTime <= 0) { this.levelTime = 0; this.gameOver(); return; }
     }
+
+    // low-hearts warning pulse
+    if (this.hearts === 1 && this.state === S.PLAY && !this._lowHWarn) {
+      this._lowHWarn = true;
+      this.toast(I18N.lowHearts || 'לב אחרון!', '#F87171');
+    } else if (this.hearts > 1) this._lowHWarn = false;
 
     // combo decay
     if (this.state === S.PLAY) {
@@ -455,7 +476,9 @@ class Game {
     // particles + effects
     this.particles.update(dt);
     this.effects.update(dt);
+    this.themes.update(dt, b);
     this.background.setIntensity(clamp(this.combo / 20, 0, 1));
+    this.background.setHue(this.themes.hue());
     this.bgTime += dt;
     this.updateHUD();
   }
@@ -531,7 +554,7 @@ class Game {
   toast(text, color) { if (this.cb.onToast) this.cb.onToast(text, color); }
 
   // ---------- Multiplayer ----------
-  setMp(net, role) { this.mpMode = true; this.mpNet = net; this.mpRole = role; }
+  setMp(net, role, lobby) { this.mpMode = true; this.mpNet = net; this.mpRole = role; this.lobby = lobby; }
   clearMp() { this.mpMode = false; this.mpNet = null; this.mpRole = null; this.remotePlayers.clear(); }
 
   applyRemoteState(state) {
@@ -553,7 +576,8 @@ class Game {
 
     if (this.state !== S.MENU) {
       for (const g of this.gems) r.drawGem(ctx, g, this.bgTime);
-      for (const box of this.boxes) r.drawBox(ctx, box, this.bgTime, this.p.x, this.p.y);
+      for (const box of this.boxes) { r.drawBox(ctx, box, this.bgTime, this.p.x, this.p.y); r.drawBoxOpening(ctx, box, this.bgTime); }
+      this.themes.render(ctx);
       this.effects.renderRings(ctx);
       // remote players (ghosts)
       for (const rp of this.remotePlayers.values()) {
@@ -562,6 +586,7 @@ class Game {
       if (this.p) {
         const tier = this.combo >= 10 ? 3 : this.combo >= 7 ? 2 : this.combo >= 4 ? 1 : 0;
         r.drawPlayer(ctx, this.p, this.skin, this.turboOn, this.bgTime, tier, this.trail);
+        r.drawTimerRing(ctx, this.p, this.levelTime, this.levelTimeMax, this.bgTime);
       }
       this.particles.render(ctx);
       this.effects.renderPopups(ctx);
@@ -587,6 +612,37 @@ class Game {
     const effDt = dt * this.effects.timeScale;
     this.update(effDt);
     this.render();
+
+    // MP win check — first to reach goal wins
+    if (this.mpMode && this.state === S.PLAY && this.goalDone >= this.goal && !this._mpResolved) {
+      this._mpResolved = true;
+      this._mpWin();
+    }
+  }
+
+  // ---------- Multiplayer win/lose ----------
+  _mpWin() {
+    if (this.lobby && this.lobby.reportWin) this.lobby.reportWin();
+    if (this.mpNet) this.mpNet.sendWin();
+    audio.mpWin();
+    if (this.cb.onToast) this.cb.onToast(I18N.mpWon + ' 🏆', '#FBBF24');
+    this.effects.heroMoment(0.6);
+    this.particles.confetti(this.renderer.W / 2, this.renderer.H / 2, 50);
+    setTimeout(() => this.quitToMenu(), 2500);
+  }
+
+  quitToMenu() {
+    if (this.mpNet) this.mpNet.stopSync();
+    this.clearMp();
+    this._mpResolved = false;
+    if (this.cb.onState) this.cb.onState('menu');
+  }
+
+  // ---------- Invulnerability flash (visual on player) ----------
+  // Handled in drawPlayer via shield ring; here we add a periodic
+  // blink when invuln is active so the kid sees they're safe.
+  _invulnBlink() {
+    return this.invuln > 0 && Math.floor(this.invuln * 10) % 2 === 0;
   }
 }
 

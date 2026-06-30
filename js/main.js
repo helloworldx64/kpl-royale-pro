@@ -101,6 +101,7 @@ class App {
       onPause: (paused) => { if (paused) this.screens.showPause(); else this.screens.hidePause(); },
       onPower: (k, p) => {},
       onHint: (rem) => this.hud.applyHint(rem),
+      onTheme: (label) => this.showThemeBadge(label),
     });
     return g;
   }
@@ -155,7 +156,7 @@ class App {
 
   startMatch(role, net, oppName, oppSkin) {
     this.screens._hideAll(); this.hud.show();
-    this.game.setMp(net, role);
+    this.game.setMp(net, role, this.lobby);
     this.game.opponentName = oppName; this.game.opponentSkin = oppSkin;
     this.game.resetGame();
     this.mobile.show();
@@ -205,11 +206,17 @@ class App {
   // ---------- State changes ----------
   _onState(st) {
     if (st === 'over' && this.game.mpMode && !this._mpLost) {
-      // we reached game over in MP — but check if it's a "win" (reached goal first)
-      // For simplicity: in MP, game over = loss
       this._mpLost = true;
       this._endMatchLost();
     }
+  }
+
+  showThemeBadge(label) {
+    const b = document.getElementById('themeBadge');
+    if (!b) return;
+    b.textContent = 'נושא חדש: ' + label;
+    b.classList.add('show');
+    setTimeout(() => b.classList.remove('show'), 1800);
   }
 
   // ---------- Settings ----------

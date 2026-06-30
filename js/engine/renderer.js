@@ -244,6 +244,82 @@ class Renderer {
     ctx.restore();
   }
 
+  // ---------- Box opening animation (lid pop + light rays) ----------
+  drawBoxOpening(ctx, box, t) {
+    if (!box.open || !box.openT) return;
+    const elapsed = (performance.now() - box.openT) / 1000;
+    if (elapsed > 0.9) return; // animation done
+    const def = box.def;
+    const r = box.r;
+    const tt = clamp(elapsed / 0.9, 0, 1);
+    ctx.save(); ctx.translate(box.x, box.y);
+
+    // Phase B: lid pop (0.12–0.35) with easeOutBack
+    if (tt < 0.45) {
+      const lp = clamp((tt - 0.12) / 0.23, 0, 1);
+      const lift = Easing.outBack(lp) * 44;
+      const rot = Easing.outBack(lp) * 0.4;
+      const a = 1 - clamp((tt - 0.2) / 0.25, 0, 1);
+      ctx.globalAlpha = a;
+      ctx.translate(0, -lift); ctx.rotate(rot);
+      const w = r * 2 + 6;
+      const lidG = ctx.createLinearGradient(0, -r, 0, 0);
+      lidG.addColorStop(0, shade(def.color, 30)); lidG.addColorStop(1, def.color);
+      ctx.fillStyle = lidG; roundRect(ctx, -w / 2, -r, w, r * 0.8, 5); ctx.fill();
+      ctx.globalAlpha = 1; ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      ctx.save(); ctx.translate(box.x, box.y);
+    }
+
+    // Phase C: light rays (0.2–0.6)
+    if (tt > 0.15 && tt < 0.7) {
+      const rp = clamp((tt - 0.15) / 0.55, 0, 1);
+      const fade = 1 - rp;
+      const nRays = 8;
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < nRays; i++) {
+        const ang = (i / nRays) * 6.28 + t * 0.6;
+        const len = r * (1.5 + fade * 2);
+        ctx.save(); ctx.rotate(ang);
+        const rg = ctx.createLinearGradient(0, 0, len, 0);
+        rg.addColorStop(0, hexA(def.glow, 0.5 * fade));
+        rg.addColorStop(1, hexA(def.glow, 0));
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.moveTo(0, -3); ctx.lineTo(len, 0); ctx.lineTo(0, 3); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+      // central flash
+      const fg = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 1.5);
+      fg.addColorStop(0, hexA(def.glow, 0.6 * fade));
+      fg.addColorStop(1, hexA(def.glow, 0));
+      ctx.fillStyle = fg;
+      ctx.beginPath(); ctx.arc(0, 0, r * 1.5, 0, 6.28); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    ctx.restore();
+  }
+
+  // ---------- Level timer ring (around player when time low) ----------
+  drawTimerRing(ctx, p, timeLeft, max, t) {
+    if (timeLeft > 15) return;
+    const frac = clamp(timeLeft / 15, 0, 1);
+    const r = p.r * 2.2;
+    ctx.save(); ctx.translate(p.x, p.y);
+    ctx.globalCompositeOperation = 'lighter';
+    const col = timeLeft <= 5 ? '#F87171' : '#FBBF24';
+    ctx.strokeStyle = hexA(col, 0.2); ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.28); ctx.stroke();
+    ctx.strokeStyle = col; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(0, 0, r, -Math.PI / 2, -Math.PI / 2 + frac * 6.28); ctx.stroke();
+    if (timeLeft <= 5) {
+      const pulse = 0.5 + 0.5 * Math.sin(t * 8);
+      ctx.globalAlpha = pulse * 0.4;
+      ctx.strokeStyle = col; ctx.lineWidth = 8;
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.28); ctx.stroke();
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
+  }
+
   // ---------- Gem ----------
   drawGem(ctx, g, t) {
     const def = g.def;

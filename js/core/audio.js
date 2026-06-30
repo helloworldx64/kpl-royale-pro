@@ -129,6 +129,17 @@ class AudioEngine {
   go() { this._tone(880, 0.2, 'triangle', 0.18); }
   mpConnect() { this._chord([523, 784], 0.18, 'sine', 0.14); }
   mpDisconnect() { this._sweep(440, 110, 0.4, 'sine', 0.12); }
+  // additional SFX
+  coin() { this._tone(988, 0.06, 'square', 0.1); this._tone(1318, 0.08, 'square', 0.08, 0.04); }
+  whoosh() { this._noise(0.18, 0.07, 0, 1200, 'bandpass'); }
+  sparkle() { this._tone(1760, 0.06, 'sine', 0.06); this._tone(2349, 0.05, 'sine', 0.04, 0.03); }
+  levelStart() { this._chord([392, 523, 659], 0.14, 'triangle', 0.12, 0.06); }
+  uiTap() { this._tone(700, 0.03, 'sine', 0.05); }
+  uiBack() { this._tone(440, 0.04, 'sine', 0.05); }
+  comboBreak() { this._sweep(440, 160, 0.2, 'sawtooth', 0.1); }
+  heartLoss() { this._sweep(330, 180, 0.18, 'triangle', 0.12); this._noise(0.1, 0.06, 0.02, 300, 'lowpass'); }
+  themeUnlock() { this._chord([523, 659, 784, 1047, 1318], 0.2, 'sine', 0.13, 0.07); }
+  victory() { [523, 659, 784, 1047, 1318, 1568].forEach((f, i) => this._tone(f, 0.22, 'triangle', 0.16, i * 0.09)); }
   mpWin() { this._chord([523, 659, 784, 1047, 1318], 0.2, 'triangle', 0.18, 0.08); }
   mpLose() { this._chord([392, 330, 262], 0.25, 'sawtooth', 0.14, 0.1); }
 

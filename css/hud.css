@@ -83,3 +83,43 @@
 #mpScore .side .v{font-size:20px;color:#fff;font-weight:900;font-variant-numeric:tabular-nums;}
 #mpScore .side.me .v{color:var(--cyan);}
 #mpScore .side.opp .v{color:var(--purple);}
+
+/* Help dialog */
+#helpDialog{position:fixed;inset:0;z-index:33;background:rgba(7,11,24,.95);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px;}
+#helpDialog .card{background:linear-gradient(180deg,rgba(15,23,48,.97),rgba(10,16,34,.97));border:2px solid var(--cyan);border-radius:20px;padding:24px 28px;max-width:560px;width:92vw;max-height:84vh;overflow:auto;box-shadow:0 0 40px rgba(34,211,238,.4);}
+#helpDialog h2{color:var(--cyan);font:900 24px var(--font-display);margin-bottom:12px;text-align:center;}
+#helpDialog .row{margin:10px 0;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;}
+#helpDialog .row .h{font:800 14px var(--font-display);color:var(--gold);margin-bottom:4px;}
+#helpDialog .row .t{font:400 14px var(--font-body);color:var(--ink-soft);line-height:1.5;}
+#helpDialog .close{margin-top:14px;width:100%;}
+
+/* Combo tier glow on the pill */
+.stat.pink[data-tier="1"]{border-color:rgba(167,139,250,0.6)!important;box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 0 22px rgba(167,139,250,0.3),0 6px 18px rgba(0,0,0,0.45);}
+.stat.pink[data-tier="2"]{border-color:rgba(244,114,182,0.6)!important;box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 0 22px rgba(244,114,182,0.3),0 6px 18px rgba(0,0,0,0.45);}
+.stat.pink[data-tier="3"]{border-color:rgba(251,191,36,0.65)!important;box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset,0 0 26px rgba(251,191,36,0.35),0 6px 18px rgba(0,0,0,0.45);animation:cpulse 1.2s ease-in-out infinite;}
+
+/* Bar ready-glow */
+.bar.full{box-shadow:inset 0 1px 3px rgba(0,0,0,0.5),0 0 14px currentColor;}
+.bar.full > i{animation:breathe 1.6s ease-in-out infinite;}
+@keyframes breathe{0%,100%{opacity:.85}50%{opacity:1}}
+
+/* Dash-ready one-shot flash */
+.bar.dash.flash > i{box-shadow:0 0 24px #fff,0 0 12px currentColor;}
+
+/* Quiz choice focus ring (keyboard) */
+.choice.focus{box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 0 0 2px rgba(34,211,238,.7),0 4px 14px rgba(0,0,0,0.4);}
+
+/* Toast variants by type */
+#toast.gold{color:var(--gold)!important;text-shadow:0 0 22px var(--gold),0 3px 0 #000;}
+#toast.red{color:var(--red)!important;text-shadow:0 0 22px var(--red),0 3px 0 #000;}
+#toast.green{color:var(--green)!important;text-shadow:0 0 22px var(--green),0 3px 0 #000;}
+
+/* Smaller quiz on very short screens */
+@media (max-height:520px){
+  #quiz{width:80vw;padding:14px 14px 12px;}
+  #quiz .q{font-size:clamp(26px,7vw,40px);margin:4px 0 4px;}
+  .choice{padding:11px 6px;font-size:20px;}
+  #choices{gap:8px;}
+  #skipBtn{padding:6px;font-size:12px;}
+}
+

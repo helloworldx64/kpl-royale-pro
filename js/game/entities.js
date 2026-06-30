@@ -86,9 +86,22 @@ function updateBoxes(boxes, dt, bounds, frozen, slow, onFuseExplode) {
         onFuseExplode(box);
       }
     }
+    // despawn countdown (non-bomb boxes vanish after life)
+    const age = (T() - box.born) / 1000;
+    if (!box.def.fuse && age > box.life && !box.dead) {
+      box.dead = true; // vanish silently (no penalty for normal boxes)
+    }
   }
   // remove dead
   for (let i = boxes.length - 1; i >= 0; i--) if (boxes[i].dead) boxes.splice(i, 1);
 }
 
-export { spawnBox, spawnGem, updateGems, updateBoxes };
+// Spawn a despawn-warning blink visual on boxes nearing end of life
+function boxDespawnWarning(box, t) {
+  if (box.def.fuse || box.dead) return false;
+  const age = (T() - box.born) / 1000;
+  const remain = box.life - age;
+  return remain < 2 && Math.sin(t * 10) > 0;
+}
+
+export { spawnBox, spawnGem, updateGems, updateBoxes, boxDespawnWarning };

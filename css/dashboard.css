@@ -1,0 +1,72 @@
+/* ============================================================
+   dashboard.css — Mastery heatmap drawer, achievements list,
+   settings panel, skin grid, theme badges
+   ============================================================ */
+
+#drawer{position:fixed;inset:0;z-index:32;background:rgba(7,11,24,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px 24px 24px;gap:14px;overflow:auto;}
+#drawer h2{color:var(--gold);font:900 28px var(--font-display);letter-spacing:1px;text-shadow:0 0 18px rgba(251,191,36,.4);}
+#drawer h3{color:var(--cyan);font:800 20px var(--font-display);margin-top:10px;letter-spacing:.5px;}
+#drawer .desc{color:var(--ink-soft);font-size:14px;max-width:520px;text-align:center;line-height:1.5;}
+
+#achList{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;max-width:680px;width:100%;}
+#achList > div{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;transition:transform .12s,border-color .12s;}
+#achList > div:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.4);}
+#achList > div.got{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.06);box-shadow:0 0 14px rgba(251,191,36,.15);}
+#achList .ic{font-size:24px;filter:drop-shadow(0 0 6px currentColor);}
+#achList .tx{font-weight:800;font-size:13px;color:var(--ink);text-align:right;flex:1;}
+#achList .got .tx{color:var(--gold);}
+#achList .lk{font-size:11px;color:var(--dim);font-weight:700;}
+
+#skinGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;max-width:560px;width:100%;}
+.skin-card{background:rgba(15,23,48,.6);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 8px;text-align:center;transition:transform .12s,border-color .12s;}
+.skin-card:hover{transform:translateY(-2px);}
+.skin-card.locked{opacity:.45;}
+.skin-card.equipped{border-color:var(--cyan);box-shadow:0 0 16px rgba(34,211,238,.3);}
+.skin-swatch{width:42px;height:42px;border-radius:10px;margin:0 auto 6px;background:linear-gradient(135deg,var(--sc),var(--ac));box-shadow:0 0 14px var(--ac),inset 0 2px 0 rgba(255,255,255,.3);position:relative;}
+.skin-swatch::after{content:"";position:absolute;inset:6px;border-radius:6px;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.4),transparent 60%);}
+.skin-name{font:800 13px var(--font-display);color:var(--ink);}
+.skin-stars{font:700 11px var(--font-display);color:var(--gold);margin-top:2px;}
+.skin-card.locked .skin-stars{color:var(--dim);}
+
+/* Settings checkboxes */
+#drawer .settings{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+#drawer .settings label{color:var(--ink);font:700 14px var(--font-body);display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:8px 14px;transition:border-color .15s;}
+#drawer .settings label:hover{border-color:rgba(34,211,238,.4);}
+#drawer .settings input[type="checkbox"]{width:18px;height:18px;accent-color:var(--cyan);cursor:pointer;}
+
+/* Mastery heatmap */
+#dashWrap{position:relative;width:min(420px,92vw);}
+#dashCanvas{width:100%;aspect-ratio:1/1;background:rgba(10,16,34,.6);border:1px solid rgba(34,211,238,.25);border-radius:12px;touch-action:none;}
+#dashDetail{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(10,16,34,.9);border:1px solid rgba(251,191,36,.4);border-radius:8px;padding:5px 12px;font:800 13px var(--font-display);color:var(--gold);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;}
+#dashDetail.show{opacity:1;}
+#dashLegend{display:flex;gap:14px;justify-content:center;font:700 11px var(--font-body);color:var(--dim);}
+#dashLegend .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-left:6px;vertical-align:middle;}
+
+/* Theme badges (shown on level start) */
+.theme-badge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(180deg,rgba(15,23,48,.97),rgba(10,16,34,.97));border:2px solid var(--cyan);border-radius:16px;padding:14px 28px;font:900 22px var(--font-display);color:var(--cyan);box-shadow:0 0 30px rgba(34,211,238,.5);z-index:14;pointer-events:none;opacity:0;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s;}
+.theme-badge.show{transform:translate(-50%,-50%) scale(1);opacity:1;}
+
+/* MP lobby styling */
+#mpScreen input{outline:none;}
+#mpScreen input:focus{border-color:var(--cyan);box-shadow:0 0 14px rgba(34,211,238,.3);}
+#mpCodeBox{margin-top:8px;}
+#mpCodeDisplay{font:900 42px var(--font-display);color:var(--gold);letter-spacing:8px;text-shadow:0 0 22px rgba(251,191,36,.6);background:rgba(15,23,48,.6);border:2px dashed rgba(251,191,36,.4);border-radius:14px;padding:10px 24px;display:inline-block;margin:6px 0;}
+#mpWaiting{margin-top:10px;}
+#mpStatus{min-height:24px;font:800 15px var(--font-display);text-align:center;}
+
+/* Drawer toggle button */
+#drawerToggle{position:fixed;bottom:18px;right:18px;z-index:31;pointer-events:auto;cursor:pointer;background:rgba(10,16,34,.85);border:2px solid var(--gold);border-radius:12px;padding:10px 16px;color:var(--gold);font:900 14px var(--font-display);box-shadow:0 0 18px rgba(251,191,36,.4);transition:transform .1s,box-shadow .15s;}
+#drawerToggle:hover{transform:translateY(-2px);box-shadow:0 0 26px rgba(251,191,36,.6);}
+#drawerToggle:active{transform:scale(.95);}
+
+/* Smaller drawer on mobile */
+@media (max-width:640px){
+  #drawer{padding:24px 14px 14px;}
+  #drawer h2{font-size:22px;}
+  #achList{grid-template-columns:1fr;}
+  #skinGrid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;}
+  #dashWrap{width:90vw;}
+  #drawer .settings{gap:8px;}
+  #drawer .settings label{padding:6px 10px;font-size:13px;}
+  #mpCodeDisplay{font-size:32px;letter-spacing:6px;padding:8px 18px;}
+}
