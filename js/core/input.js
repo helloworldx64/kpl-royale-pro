@@ -43,13 +43,13 @@ class Input {
 
     // Touch on canvas → joystick
     if (device.isTouch) {
-      canvas.addEventListener('touchstart', e => {
+      this.canvas.addEventListener('touchstart', e => {
         if (this._tId === null && e.touches[0]) {
           this._tId = e.touches[0].identifier;
           this._tStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         }
       }, { passive: true });
-      canvas.addEventListener('touchmove', e => {
+      this.canvas.addEventListener('touchmove', e => {
         for (const t of e.touches) {
           if (t.identifier === this._tId) {
             this._tVec.x = t.clientX - this._tStart.x;
@@ -58,7 +58,7 @@ class Input {
         }
         e.preventDefault();
       }, { passive: false });
-      canvas.addEventListener('touchend', e => {
+      this.canvas.addEventListener('touchend', e => {
         let still = false;
         for (const t of e.touches) if (t.identifier === this._tId) still = true;
         if (!still) { this._tId = null; this._tVec = { x: 0, y: 0 }; }
