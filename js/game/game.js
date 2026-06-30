@@ -5,7 +5,7 @@
 
 import { CONFIG, BOX_TYPES, GEMS, POWERS, SKINS } from '../data/config.js';
 import { I18N } from '../data/i18n.js';
-import { rand, clamp, lerp, angLerp, T, pick, Easing } from '../core/utils.js';
+import { rand, clamp, lerp, angLerp, T, pick, Easing, hexA } from '../core/utils.js';
 import { device } from '../core/device.js';
 import { audio } from '../core/audio.js';
 import { store } from '../core/storage.js';
@@ -559,5 +559,4 @@ class Game {
   }
 }
 
-import { hexA } from '../core/utils.js';
 export { Game, S };

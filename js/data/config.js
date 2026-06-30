@@ -156,6 +156,26 @@ export const SKINS = [
   { id: 'dino',      name: 'דינוזאור', stars: 60, body: '#34D399', accent: '#FBBF24' },
 ];
 
+// Trail effects (unlockable)
+export const TRAILS = [
+  { id: 'default',  name: 'רגיל',     stars: 0,  color: null },           // null = use combo-tier color
+  { id: 'flames',   name: 'להבות',    stars: 5,  color: '#FB923C' },
+  { id: 'stars',    name: 'כוכבים',   stars: 10, color: '#FDE047' },
+  { id: 'bubbles',  name: 'בועות',    stars: 15, color: '#67E8F9' },
+  { id: 'rainbow',  name: 'קשת',      stars: 20, color: 'rainbow' },
+  { id: 'lightning',name: 'ברק',      stars: 30, color: '#FDE047' },
+];
+
+// Arena themes (visual palette swaps by level tier)
+export const THEMES = [
+  { id: 'grid',    name: 'רשת',     minLevel: 1,  hue: 200 },
+  { id: 'space',   name: 'חלל',     minLevel: 6,  hue: 260 },
+  { id: 'jungle',  name: 'ג\'ונגל', minLevel: 12, hue: 140 },
+  { id: 'candy',   name: 'ממתקים',  minLevel: 18, hue: 320 },
+  { id: 'ocean',   name: 'אוקיינוס', minLevel: 24, hue: 190 },
+  { id: 'volcano', name: 'הר געש',  minLevel: 30, hue: 10 },
+];
+
 // Achievements
 export const ACHIEVEMENTS = [
   { id: 'first_correct', name: 'התשובה הראשונה',  icon: '🎯', cond: g => g.totalCorrect >= 1 },

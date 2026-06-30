@@ -133,10 +133,22 @@ class AudioEngine {
   mpLose() { this._chord([392, 330, 262], 0.25, 'sawtooth', 0.14, 0.1); }
 
   // ============ Adaptive background music ============
-  // A simple generative arpeggio loop in a minor key that intensifies with combo.
+  // Generative loop with melody, bass, pad, and a soft drum layer.
+  // Intensifies with combo. Scales shift by level for variety.
+  _scales() {
+    const sets = [
+      { name: 'A-minor pent', mel: [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33], bass: [110, 130.81, 146.83, 164.81, 196] },
+      { name: 'C-major',      mel: [261.63, 293.66, 329.63, 349.23, 392, 440, 493.88, 523.25], bass: [130.81, 196, 174.61, 164.81, 220] },
+      { name: 'D-dorian',     mel: [293.66, 329.63, 349.23, 392, 440, 493.88, 523.25, 587.33], bass: [146.83, 196, 220, 246.94, 293.66] },
+      { name: 'E-phrygian',   mel: [329.63, 349.23, 392, 440, 493.88, 523.25, 587.33, 659.25], bass: [164.81, 174.61, 220, 246.94, 329.63] },
+    ];
+    return sets;
+  }
+  setMoodForLevel(L) { this._moodIdx = (L >> 2) % this._scales().length; }
+
   startMusic() {
     if (!this.ctx || !this.musicOn || this._musicTimer) return;
-    this.musicGain.gain.linearRampToValueAtTime(0.32, this.ctx.currentTime + 1.5);
+    this.musicGain.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 1.5);
     this._scheduleMusic();
   }
 
@@ -146,28 +158,37 @@ class AudioEngine {
   }
 
   _scheduleMusic() {
-    // A minor pentatonic-ish scale (Hz)
-    const scale = [220, 261.63, 293.66, 329.63, 392, 440, 523.25, 587.33];
-    const bassScale = [110, 130.81, 146.83, 164.81, 196];
+    const sets = this._scales();
+    let moodIdx = this._moodIdx || 0;
     let step = 0;
     const tick = () => {
       if (!this.ctx) return;
-      const t = this.ctx.currentTime;
+      const set = sets[moodIdx];
       const intensity = this._musicIntensity;
-      const tempo = 0.32 - intensity * 0.08;   // faster when intense
-      // melody note
-      const note = scale[(step * 3 + (step % 5)) % scale.length];
+      const tempo = 0.34 - intensity * 0.10;
+      // melody — arpeggiated walk
+      const note = set.mel[(step * 3 + (step % 5)) % set.mel.length];
       this._tone(note, tempo * 0.9, 'triangle', 0.05 + intensity * 0.04, 0, this.musicGain);
-      // bass every 4 steps
+      // bass on the beat
       if (step % 4 === 0) {
-        const bn = bassScale[(step / 4) % bassScale.length | 0];
-        this._tone(bn, tempo * 2, 'sine', 0.07, 0, this.musicGain);
+        const bn = set.bass[((step / 4) | 0) % set.bass.length];
+        this._tone(bn, tempo * 2.2, 'sine', 0.07, 0, this.musicGain);
       }
       // pad shimmer at high intensity
       if (intensity > 0.5 && step % 2 === 0) {
         this._tone(note * 2, tempo * 0.5, 'sine', 0.03, 0, this.musicGain);
       }
+      // soft kick drum every 4 steps at high intensity
+      if (intensity > 0.3 && step % 4 === 0) {
+        this._tone(60, 0.08, 'sine', 0.05 + intensity * 0.05, 0, this.musicGain);
+      }
+      // hi-hat tick every 2 steps at very high intensity
+      if (intensity > 0.7 && step % 2 === 0) {
+        this._noise(0.02, 0.02, 0, 6000, 'highpass');
+      }
       step++;
+      // change mood every 32 steps for variety
+      if (step % 32 === 0) moodIdx = (moodIdx + 1) % sets.length;
       this._musicTimer = setTimeout(tick, tempo * 1000);
     };
     tick();

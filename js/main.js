@@ -14,6 +14,9 @@ import { Screens } from './ui/screens.js';
 import { MobileControls } from './ui/mobile.js';
 import { Lobby } from './mp/lobby.js';
 import { achievements } from './game/achievements.js';
+import { Tutorial } from './game/tutorial.js';
+import { stats } from './game/stats.js';
+import { Dashboard } from './ui/dashboard.js';
 import { T } from './core/utils.js';
 
 class App {
@@ -47,6 +50,14 @@ class App {
       () => this.endMatch());
 
     achievements.onUnlock((ach) => this.hud.showAch(ach.name, ach.icon));
+
+    // Tutorial (first-run onboarding)
+    this.tutorial = new Tutorial();
+    this.tutorial.onStep = (s) => this.hud.showToast(s.title + ' — ' + s.text, '#22D3EE');
+    this.tutorial.onDone = () => this.hud.showToast('אתה מוכן! בהצלחה!', '#34D399');
+
+    // Mastery dashboard (lazy-built when drawer opens)
+    this.dashboard = null;
 
     // Apply saved settings
     const settings = store.get('settings');
@@ -99,7 +110,12 @@ class App {
     audio.unlock(); audio.startMusic();
     this.screens._hideAll(); this.hud.show();
     this.game.clearMp(); this.game.resetGame();
+    stats.reset();
     this.mobile.show();
+    // tutorial on first ever play
+    if (this.tutorial.maybeStart()) {
+      this._tutorialActive = true;
+    }
   }
 
   startDuel() {
@@ -213,6 +229,10 @@ class App {
   // ---------- Loop ----------
   loop(t) {
     this.game.step(t);
+    if (this._tutorialActive) {
+      this.tutorial.tick(this.game);
+      if (!this.tutorial.active) this._tutorialActive = false;
+    }
     requestAnimationFrame(this._loopBound);
   }
 }
