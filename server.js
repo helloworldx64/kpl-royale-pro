@@ -11,7 +11,7 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const ROOT = join(__dirname, 'public');
+const ROOT = join(__dirname);  // serve from repo root (index.html at root)
 const PORT = process.env.PORT || 3000;
 
 const MIME = {

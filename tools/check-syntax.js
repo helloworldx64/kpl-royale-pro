@@ -9,7 +9,7 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const ROOT = join(__dirname, '..', 'public', 'js');
+const ROOT = join(__dirname, '..', 'js');
 
 async function* walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
