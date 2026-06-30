@@ -4,7 +4,7 @@
 // ============================================================
 
 import { CONFIG } from '../data/config.js';
-import { rand, clamp, lerp, angLerp, Easing, shade, hexA } from '../core/utils.js';
+import { rand, clamp, lerp, angLerp, Easing, shade, hexA, fmtNum } from '../core/utils.js';
 import { device } from '../core/device.js';
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -420,6 +420,50 @@ class Renderer {
       ctx.fillStyle = skin.accent; ctx.fillText(p.name, p.x, p.y - r - 10);
       ctx.restore();
     }
+    // score tag under remote
+    if (p.score != null) {
+      ctx.save(); ctx.globalAlpha = 0.8;
+      ctx.font = '900 13px Heebo, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(10,16,34,.8)';
+      const txt = fmtNum(p.score);
+      const tw = ctx.measureText(txt).width + 14;
+      roundRect(ctx, p.x - tw / 2, p.y + r + 6, tw, 16, 8); ctx.fill();
+      ctx.fillStyle = '#FBBF24'; ctx.fillText(txt, p.x, p.y + r + 18);
+      ctx.restore();
+    }
+  }
+
+  // ---------- Combo aura around player ----------
+  drawComboAura(ctx, p, combo, t) {
+    if (combo < 5) return;
+    const tier = combo >= 25 ? '#FBBF24' : combo >= 15 ? '#F472B6' : combo >= 10 ? '#A78BFA' : '#34D399';
+    const r = p.r * (1.8 + Math.min(combo, 50) * 0.02);
+    ctx.save(); ctx.translate(p.x, p.y);
+    ctx.globalCompositeOperation = 'lighter';
+    // rotating dashes
+    ctx.strokeStyle = hexA(tier, 0.3 + 0.1 * Math.sin(t * 4));
+    ctx.lineWidth = 2.5; ctx.setLineDash([10, 8]); ctx.lineDashOffset = -t * 40;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.28); ctx.stroke();
+    ctx.setLineDash([]);
+    // glow disc
+    const g = ctx.createRadialGradient(0, 0, r * 0.6, 0, 0, r * 1.3);
+    g.addColorStop(0, hexA(tier, 0)); g.addColorStop(0.7, hexA(tier, 0.08)); g.addColorStop(1, hexA(tier, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.3, 0, 6.28); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
+  }
+
+  // ---------- Spawn-in animation for boxes ----------
+  drawBoxSpawn(ctx, box, t) {
+    const age = (performance.now() - box.born) / 1000;
+    if (age > 0.4) return;
+    const s = Easing.outBack(clamp(age / 0.4, 0, 1));
+    ctx.save(); ctx.translate(box.x, box.y); ctx.scale(s, s);
+    ctx.globalAlpha = s;
+    ctx.fillStyle = hexA(box.def.glow, 0.2);
+    ctx.beginPath(); ctx.arc(0, 0, box.r * 1.5 * (1 - s + 0.3), 0, 6.28); ctx.fill();
+    ctx.globalAlpha = 1; ctx.restore();
   }
 }
 

@@ -45,3 +45,83 @@ body.touch #mobile{display:block;}
   #mob-turbo{left:14px;} #mob-dash{right:14px;}
   #quiz{width:80vw;}
 }
+
+/* Tablet adjustments */
+@media (min-width:641px) and (max-width:1024px){
+  .stat .val{font-size:16px;}
+  .bars{width:150px;}
+  #mob-turbo,#mob-dash{width:68px;height:68px;}
+}
+
+/* Touch joystick visual hint */
+body.touch #wrap::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:4;
+  background:radial-gradient(circle at 50% 80%,rgba(34,211,238,0.04),transparent 40%);
+}
+
+/* Active turbo/dash button states */
+#mob-turbo.active{background:rgba(34,211,238,.35);transform:scale(.92);box-shadow:0 0 24px rgba(34,211,238,.7);}
+#mob-dash.active{background:rgba(244,114,182,.35);transform:scale(.92);box-shadow:0 0 24px rgba(244,114,182,.7);}
+
+/* Disable text selection callouts on long press */
+body{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+
+/* Safe-area insets for notched phones */
+#mobile{padding-bottom:env(safe-area-inset-bottom);}
+.top{padding-top:max(12px,env(safe-area-inset-top));}
+
+/* Larger tap targets on touch */
+@media (pointer:coarse){
+  .choice{padding:18px 8px;font-size:24px;}
+  .btn{padding:18px 36px;}
+  #drawerToggle,#helpToggle{padding:14px 18px;font-size:15px;}
+}
+
+/* Prevent pull-to-refresh while playing */
+body{overscroll-behavior:none;}
+
+/* Quiz choices: 1-column on very narrow phones */
+@media (max-width:360px){
+  #choices{grid-template-columns:1fr;}
+  .choice{padding:12px;font-size:20px;}
+}
+
+/* Power-up dock above mobile buttons */
+body.touch #pudock{bottom:112px;}
+
+/* Achievement toast higher on mobile to avoid buttons */
+@media (max-width:640px){
+  .ach-toast{transform:translate(-50%,calc(-50% + 60px));}
+  .ach-toast.show{transform:translate(-50%,calc(-50% + 40px));}
+  #comboBanner{top:28%;}
+  #toast{top:58%;}
+}
+
+/* Help dialog scroll on small screens */
+@media (max-width:640px){
+  #helpDialog .card{padding:18px 16px;}
+  #helpDialog .row{padding:8px 10px;}
+  #helpDialog .row .h{font-size:13px;}
+  #helpDialog .row .t{font-size:13px;}
+}
+
+/* Drawer scroll behavior on mobile */
+@media (max-width:640px){
+  #drawer{-webkit-overflow-scrolling:touch;}
+}
+
+/* Screen content scale on tiny screens */
+@media (max-width:380px){
+  .screen h1{font-size:42px;letter-spacing:1px;}
+  .screen h2{font-size:18px;}
+  .screen p{font-size:13px;}
+  .keys{font-size:12px;padding:10px 12px;}
+  .btn{padding:14px 28px;font-size:18px;}
+}
+
+/* Orientation lock hint for portrait phones trying multiplayer */
+@media (max-width:480px) and (orientation:portrait){
+  #mpScreen .hint-rotate{display:block;color:var(--gold);font:800 13px var(--font-display);margin-top:6px;}
+}
+#mpScreen .hint-rotate{display:none;}
+

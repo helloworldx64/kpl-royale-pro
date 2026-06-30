@@ -154,6 +154,27 @@ class Screens {
     const more = list.map(a => a.icon + ' ' + a.name).join(' • ');
     el.textContent = (cur ? cur + ' | ' : '') + 'הישגים: ' + more;
   }
+
+  _renderDifficulty() {
+    const el = document.getElementById('difficultyBadge');
+    if (!el) return;
+    const maxLvl = store.get('maxLevel') || 1;
+    let tier = { id: 'rookie', name: 'טירון', color: '#34D399' };
+    // import would be circular; inline the tiers
+    const tiers = [
+      { id: 'rookie', name: 'טירון', color: '#34D399', minLevel: 1 },
+      { id: 'cadet', name: 'debí', color: '#22D3EE', minLevel: 3 },
+      { id: 'pilot', name: 'טייס', color: '#3B82F6', minLevel: 6 },
+      { id: 'ace', name: 'אלוף טייס', color: '#A78BFA', minLevel: 10 },
+      { id: 'master', name: 'מאסטר', color: '#F472B6', minLevel: 15 },
+      { id: 'legend', name: 'אגדה', color: '#FBBF24', minLevel: 21 },
+    ];
+    for (const t of tiers) if (maxLvl >= t.minLevel) tier = t;
+    el.textContent = 'דרגה: ' + tier.name;
+    el.style.borderColor = tier.color;
+    el.style.color = tier.color;
+    el.style.boxShadow = '0 0 14px ' + tier.color + '66';
+  }
 }
 
 export { Screens };

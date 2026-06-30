@@ -585,6 +585,7 @@ class Game {
       }
       if (this.p) {
         const tier = this.combo >= 10 ? 3 : this.combo >= 7 ? 2 : this.combo >= 4 ? 1 : 0;
+        r.drawComboAura(ctx, this.p, this.combo, this.bgTime);
         r.drawPlayer(ctx, this.p, this.skin, this.turboOn, this.bgTime, tier, this.trail);
         r.drawTimerRing(ctx, this.p, this.levelTime, this.levelTimeMax, this.bgTime);
       }
