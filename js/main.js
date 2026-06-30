@@ -245,8 +245,19 @@ class App {
 }
 
 // Boot when DOM is ready
+function boot() {
+  try {
+    const c = document.getElementById('c');
+    if (!c || !c.getContext) { throw new Error('canvas element missing'); }
+    new App();
+  } catch (e) {
+    console.error('Boot failed:', e);
+    const d = document.getElementById('errFallback') || (() => { const x = document.createElement('div'); x.id = 'errFallback'; x.style.cssText = 'position:fixed;inset:0;z-index:99;display:flex;align-items:center;justify-content:center;background:#070B18;color:#F87171;font:800 16px Heebo,sans-serif;padding:30px;text-align:center;'; document.body.appendChild(x); return x; })();
+    d.textContent = 'שגיאה בטעינה: ' + e.message + ' — רענן את הדף';
+  }
+}
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new App());
+  document.addEventListener('DOMContentLoaded', boot);
 } else {
-  new App();
+  boot();
 }
