@@ -3,7 +3,7 @@
 // quiz flow, level progression, win/lose. Orchestrates all systems.
 // ============================================================
 
-import { CONFIG, BOX_TYPES, GEMS, POWERS, SKINS } from '../data/config.js';
+import { CONFIG, BOX_TYPES, GEMS, POWERS, SKINS, TRAILS } from '../data/config.js';
 import { I18N } from '../data/i18n.js';
 import { rand, clamp, lerp, angLerp, T, pick, Easing, hexA } from '../core/utils.js';
 import { device } from '../core/device.js';
@@ -46,7 +46,7 @@ class Game {
     this.invuln = 0; this.score2xT = 0; this.magnetT = 0; this.freezeT = 0; this.slowmoT = 0;
     this.shieldCharge = 0; this.turboUses = 0; this.comboDecayT = 0;
     this.turbo = 1; this.dash = 1; this.turboOn = false;
-    this.hue = 200; this.skin = SKINS[0];
+    this.hue = 200; this.skin = SKINS[0]; this.trail = null;
     this.boxes = []; this.gems = []; this.remotePlayers = new Map();
     this.cur = null; this.curBox = null; this.curType = 'normal';
     this.spawnT = 0; this.gemT = 0; this.bgTime = 0; this.last = 0;
@@ -67,6 +67,7 @@ class Game {
     this.level = 1; this.score = 0; this.hearts = 3; this.combo = 0; this.bestCombo = 0;
     this.answered = 0; this.correct = 0; this.turboUses = 0; this.hue = 200;
     this.skin = SKINS.find(s => store.hasSkin(s.id)) || SKINS[0];
+    this.trail = TRAILS.find(t => store.get('unlocks').trails.includes(t.id) && t.color) || TRAILS[0];
     this.effects.clear(); this.particles.clear();
     this.startLevel(1, true);
   }
@@ -91,7 +92,12 @@ class Game {
     if (this.cb.onState) this.cb.onState('play');
     if (this.hud) this.hud.show();
     if (wipe) this.effects.startWipe(this.p.x, this.p.y);
+    if (levels.isChallenge(lv)) {
+      const m = I18N['challenge_' + lv] || levels.challengeMod(lv);
+      if (m) setTimeout(() => this.toast(m, '#FB923C'), 600);
+    }
     this.toast(I18N.levelStart + ' ' + lv, '#22D3EE');
+    audio.setMoodForLevel(lv);
     audio.setIntensity(0);
     this.updateHUD();
   }
@@ -191,6 +197,7 @@ class Game {
 
     if (ok) {
       this.correct++; this.combo++; this.bestCombo = Math.max(this.bestCombo, this.combo); this.flawless = this.flawless;
+      this._checkComboMilestone();
       const pts = scoring.correct(this.combo, type, rt, this.qTimeLimit, this.score2xT > 0);
       this.score += pts; this.goalDone++;
       store.inc('totalCorrect');
@@ -453,6 +460,24 @@ class Game {
     this.updateHUD();
   }
 
+  _checkComboMilestone() {
+    const c = this.combo;
+    const milestones = [5, 10, 15, 20, 25, 50];
+    if (milestones.includes(c)) {
+      const key = 'combo_milestone_' + c;
+      const txt = I18N[key] || ('x' + c + '!');
+      if (this.cb.onComboBanner) this.cb.onComboBanner(txt);
+      this.effects.heroMoment(0.4);
+      this.effects.addShake(8);
+      this.effects.flash('rgba(251,191,36,0.25)', 0.6, 0.35);
+      this.particles.confetti(this.p.x, this.p.y - 40, 30);
+      this.particles.star(this.p.x, this.p.y, '#FBBF24', 16, 6, 1.0);
+      this.effects.ring(this.p.x, this.p.y, '#FBBF24', 420, 0.6);
+      audio.star();
+      device.vibrate([40, 30, 40]);
+    }
+  }
+
   onFuseExplode(box) {
     if (this.invuln > 0) return;
     if (this.shieldCharge > 0) { this.shieldCharge = 0; this.toast(I18N.shieldBomb, '#3B82F6'); audio.shield(); }
@@ -489,12 +514,18 @@ class Game {
   updateHUD() {
     if (!this.hud) return;
     this.scoreDisp = lerp(this.scoreDisp, this.score, 0.2);
-    this.hud.update({
+    const data = {
       score: Math.round(this.scoreDisp), level: this.level, combo: Math.max(1, this.combo),
       time: Math.max(0, Math.ceil(this.levelTime)), turbo: this.turbo, dash: this.dash,
       hearts: this.hearts, maxHearts: this.maxHearts, goalDone: this.goalDone, goal: this.goal,
       shield: this.shieldCharge, score2x: this.score2xT, magnet: this.magnetT, freeze: this.freezeT, slowmo: this.slowmoT,
-    });
+    };
+    if (this.mpMode) {
+      let oppScore = 0;
+      for (const rp of this.remotePlayers.values()) oppScore = Math.max(oppScore, rp.score || 0);
+      data.mp = { me: this.score, opp: oppScore, meName: this.mpNet ? this.mpNet._myName() : 'אתה', oppName: this.opponentName || 'יריב' };
+    }
+    this.hud.update(data);
   }
 
   toast(text, color) { if (this.cb.onToast) this.cb.onToast(text, color); }
@@ -530,7 +561,7 @@ class Game {
       }
       if (this.p) {
         const tier = this.combo >= 10 ? 3 : this.combo >= 7 ? 2 : this.combo >= 4 ? 1 : 0;
-        r.drawPlayer(ctx, this.p, this.skin, this.turboOn, this.bgTime, tier);
+        r.drawPlayer(ctx, this.p, this.skin, this.turboOn, this.bgTime, tier, this.trail);
       }
       this.particles.render(ctx);
       this.effects.renderPopups(ctx);

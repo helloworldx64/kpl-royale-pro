@@ -46,7 +46,8 @@ class Renderer {
   }
 
   // ---------- Player ----------
-  drawPlayer(ctx, p, skin, turboOn, t, comboTier) {
+  drawPlayer(ctx, p, skin, turboOn, t, comboTier, trail) {
+    const trailStyle = trail && trail.color ? trail.color : null;
     // dash ghosts
     ctx.globalCompositeOperation = 'lighter';
     for (const gh of p.dashGhost) {
@@ -58,13 +59,29 @@ class Renderer {
     }
     ctx.globalCompositeOperation = 'source-over';
 
-    // trail
+    // trail (with style variants)
     ctx.globalCompositeOperation = 'lighter';
     const tierCol = comboTier >= 3 ? '251,191,36' : comboTier >= 2 ? '244,114,182' : comboTier >= 1 ? '167,139,250' : '34,211,238';
     for (let i = 0; i < p.trail.length; i++) {
       const a = i / p.trail.length;
-      ctx.fillStyle = `rgba(${tierCol},${a * 0.35})`;
-      ctx.beginPath(); ctx.arc(p.trail[i].x, p.trail[i].y, p.r * a * 0.8, 0, 6.28); ctx.fill();
+      const tp = p.trail[i];
+      if (trailStyle === 'rainbow') {
+        const hue = (t * 80 + i * 20) % 360;
+        ctx.fillStyle = `hsla(${hue},90%,60%,${a * 0.4})`;
+      } else if (trailStyle && trailStyle !== 'rainbow') {
+        const c = trailStyle.replace('#', '');
+        const n = parseInt(c.length === 3 ? c.split('').map(x => x + x).join('') : c, 16);
+        ctx.fillStyle = `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a * 0.4})`;
+      } else {
+        ctx.fillStyle = `rgba(${tierCol},${a * 0.35})`;
+      }
+      if (trailStyle === 'stars') {
+        this._starShape(ctx, tp.x, tp.y, p.r * a, p.r * a * 0.5, 5);
+      } else if (trailStyle === 'bubbles') {
+        ctx.beginPath(); ctx.arc(tp.x, tp.y, p.r * a * 0.9, 0, 6.28); ctx.lineWidth = 2; ctx.strokeStyle = ctx.fillStyle; ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(tp.x, tp.y, p.r * a * 0.8, 0, 6.28); ctx.fill();
+      }
     }
     ctx.globalCompositeOperation = 'source-over';
 
@@ -292,6 +309,16 @@ class Renderer {
     ctx.beginPath();
     ctx.moveTo(0, -r); ctx.lineTo(r * 0.7, -r * 0.2);
     ctx.lineTo(0, r); ctx.lineTo(-r * 0.7, -r * 0.2); ctx.closePath();
+  }
+
+  _starShape(ctx, cx, cy, outer, inner, points) {
+    ctx.beginPath();
+    for (let i = 0; i < points * 2; i++) {
+      const r = i % 2 ? inner : outer;
+      const a = (i / (points * 2)) * 6.28 - Math.PI / 2;
+      ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    }
+    ctx.closePath(); ctx.fill();
   }
 
   // ---------- Remote player (multiplayer ghost) ----------

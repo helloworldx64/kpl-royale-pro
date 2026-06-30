@@ -124,4 +124,87 @@ export const I18N = {
   yes: 'כן',
   no: 'לא',
   loading: 'טוען...',
+
+  // Tutorial steps
+  tut_move_title: 'זוזי עם החצים!',
+  tut_move_text: 'השתמשי בחצים או ב-WASD כדי לנוע בזירה. במובייל — גררי על המסך.',
+  tut_box_title: 'פתחי תיבת כפל!',
+  tut_box_text: 'נסעי אל התיבה הקרובה כדי לפתוח אותה ולקבל שאלת כפל.',
+  tut_answer_title: 'עני נכוחה!',
+  tut_answer_text: 'לחצי על התשובה הנכונה או הקלידי 1-4. תשובה נכונה = ניקוד + רצץ!',
+  tut_turbo_title: 'טורבו!',
+  tut_turbo_text: 'לחיצה על Shift (או כפתור טורבו) מזרזת אותך — אבל מרוקנת את מד האנרגיה.',
+  tut_dash_title: 'דש!',
+  tut_dash_text: 'רווח (או כפתור דש) נותן זריקה מהירה להתחמקות. מתמלא כל שנייה.',
+  tut_ready: 'אתה מוכן! בהצלחה!',
+
+  // Combo milestones
+  combo_milestone_5: 'רצץ אש! x5',
+  combo_milestone_10: 'בלתי מנוצח! x10',
+  combo_milestone_15: 'מטורף! x15',
+  combo_milestone_20: 'אגדי! x20',
+  combo_milestone_25: 'אלוף הכפל! x25',
+  combo_milestone_50: 'מיתולוגי! x50',
+
+  // Box type labels (full)
+  box_normal: 'תיבת כפל',
+  box_golden: 'תיבת זהב — ניקוד כפול!',
+  box_bomb: 'פצצה — מהר לפני שתתפוצץ!',
+  box_time: 'תיבת זמן — +6 שניות',
+  box_mega: 'מגה תיבה — פאוור-אפ!',
+  box_mystery: 'תיבת תעלומה — מה יקרה?',
+  box_heart: 'תיבת לב — חיים +1',
+  box_combo: 'תיבת רצץ — פתח ב-x5!',
+
+  // Gem names with descriptions
+  gem_ruby_desc: 'אודם — +10 נקודות',
+  gem_sapphire_desc: 'ספיר — +25 נקודות',
+  gem_emerald_desc: 'ברקת — +5 נקודות ו+1 רצץ',
+  gem_topaz_desc: 'טופז — +30 נקודות',
+  gem_amethyst_desc: 'אחלמה — +15 ומילוי טורבו',
+  gem_rainbow_desc: 'אבן קשת — +100, חוסן ו×2!',
+
+  // Dashboard
+  dash_title: 'טבלת שליטה',
+  dash_desc: 'כל תא מציג את הדיוק שלך בתרגיל. אדום = טרם תורגל, ירוק = שולט.',
+  dash_unseen: 'טרם תורגל',
+  dash_weakest: 'התרגילים החלשים שלך:',
+  dash_accuracy: 'דיוק',
+  dash_speed: 'מהירות',
+  dash_attempts: 'ניסיונות',
+
+  // Settings
+  set_sound: 'סאונד',
+  set_music: 'מוזיקה',
+  set_reduce: 'תנועה מופחתת',
+  set_haptics: 'רטט במובייל',
+
+  // Skin names already in config; here are unlock notifications
+  unlock_skin: 'פתחת סקין חדש!',
+  unlock_trail: 'פתחת סקין עקבות חדש!',
+  unlock_theme: 'פתחת נושא זירה חדש!',
+
+  // Challenge levels
+  challenge_5: 'שלב אתגר: בומבל — המון פצצות!',
+  challenge_10: 'שלב אתגר: מהירות כפולה — תיבות זזות!',
+  challenge_15: 'שלב אתגר: לבה עולה!',
+  challenge_20: 'שלב אתגר: ללא ויתורים!',
+  challenge_25: 'שלב אתגר: מגה-מטור — מגה תיבות!',
+  challenge_30: 'שלב אתגר: כל האתגרים!',
+
+  // Stats summary labels
+  stat_boxes_opened: 'תיבות נפתחו',
+  stat_gems: 'אבנים נאספו',
+  stat_turbo_uses: 'שימושי טורבו',
+  stat_dashes: 'שימושי דש',
+  stat_play_time: 'זמן משחק',
+  stat_fastest: 'תשובה מהירה ביותר',
+  stat_avg_time: 'זמן תגובה ממוצע',
+
+  // Low time warning
+  lowTime: 'הזמן אוזל!',
+  lowHearts: 'לב אחרון!',
+
+  // Power-up gained
+  power_gain: 'קיבלת:',
 };

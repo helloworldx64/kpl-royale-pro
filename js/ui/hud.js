@@ -42,6 +42,9 @@ class HUD {
     const tier = d.combo >= 10 ? 'rgba(251,191,36,0.55)' : d.combo >= 7 ? 'rgba(244,114,182,0.55)' : d.combo >= 4 ? 'rgba(167,139,250,0.55)' : 'rgba(244,114,182,0.55)';
     this.comboPill.style.borderColor = tier;
     this.time.textContent = d.time;
+    if (d.time <= 10 && this.time.style.color !== 'var(--red)') {
+      this.time.style.color = d.time <= 10 ? 'var(--red)' : '#fff';
+    } else if (d.time > 10) this.time.style.color = '#fff';
     this.turbo.style.width = (d.turbo * 100) + '%';
     this.dash.style.width = (d.dash * 100) + '%';
     // hearts
@@ -55,6 +58,20 @@ class HUD {
     this.pips.innerHTML = pp;
     // power-up dock
     this.updatePUDock(d);
+    // MP score panel
+    if (d.mp) this.updateMpScore(d.mp);
+    else if (this.mpScore) this.mpScore.classList.add('hidden');
+  }
+
+  updateMpScore(mp) {
+    if (!this.mpScore) {
+      this.mpScore = document.getElementById('mpScore');
+      if (!this.mpScore) return;
+    }
+    this.mpScore.classList.remove('hidden');
+    this.mpScore.innerHTML = `
+      <div class="side me"><div class="n">${mp.meName || 'אתה'}</div><div class="v">${mp.me}</div></div>
+      <div class="side opp"><div class="n">${mp.oppName || 'יריב'}</div><div class="v">${mp.opp}</div></div>`;
   }
 
   updatePUDock(d) {
