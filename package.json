@@ -1,0 +1,14 @@
+{
+  "name": "kpl-royale-pro",
+  "version": "2.0.0",
+  "description": "כפל רויאל — Multiplication Royale. AAA educational math arena game for kids. Hebrew RTL. Single + multiplayer (WebRTC P2P).",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node tools/check-syntax.js"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}

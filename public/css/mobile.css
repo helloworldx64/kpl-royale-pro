@@ -1,0 +1,47 @@
+/* ============================================================
+   mobile.css — Touch controls + responsive HUD adjustments
+   ============================================================ */
+
+#mobile{position:fixed;inset:0;pointer-events:none;z-index:9;display:none;}
+#mob-turbo,#mob-dash{position:absolute;bottom:24px;width:74px;height:74px;border-radius:50%;background:rgba(10,16,34,.7);border:2px solid var(--cyan);color:#fff;font-weight:900;font-size:13px;pointer-events:auto;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(34,211,238,.4);backdrop-filter:blur(6px);transition:transform .1s;}
+#mob-turbo{left:24px;border-color:var(--cyan);}
+#mob-dash{right:24px;border-color:var(--pink);box-shadow:0 0 16px rgba(244,114,182,.4);}
+body.touch #mobile{display:block;}
+
+/* Mobile HUD tightening */
+@media (max-width:640px){
+  .top{padding:8px 10px;gap:6px;}
+  .col{gap:4px;}
+  .stat{padding:5px 9px;border-radius:11px;}
+  .stat .val{font-size:15px;}
+  .stat.gold .val{font-size:18px;}
+  .bars{width:120px;}
+  .bar{height:13px;}
+  .hearts .heart{width:18px;height:18px;}
+  .pips{max-width:90px;}
+  .pip{width:8px;height:8px;}
+  #quiz{width:94vw;padding:16px 14px 14px;}
+  .choice{padding:13px 6px;font-size:22px;}
+  #choices{gap:8px;}
+  #pudock{bottom:108px;}
+  .ach-toast{transform:translate(-50%,calc(-50% + 80px));}
+  .ach-toast.show{transform:translate(-50%,calc(-50% + 60px));}
+}
+
+/* Portrait phone — stack HUD compactly */
+@media (max-width:480px) and (orientation:portrait){
+  .top{flex-wrap:wrap;}
+  .col.center{order:3;width:100%;align-items:center;}
+  #mpScore{top:140px;}
+}
+
+/* Landscape phone — keep HUD thin */
+@media (max-height:480px) and (orientation:landscape){
+  .top{padding:6px 10px;}
+  .stat{padding:4px 8px;}
+  .stat .val{font-size:14px;}
+  .bars{width:110px;}
+  #mob-turbo,#mob-dash{width:60px;height:60px;bottom:14px;font-size:11px;}
+  #mob-turbo{left:14px;} #mob-dash{right:14px;}
+  #quiz{width:80vw;}
+}

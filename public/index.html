@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#050811">
+<title>כפל רויאל — זירת הבלוקים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;800;900&family=Rubik:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/hud.css">
+<link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="fx"><div class="scanlines"></div><div class="vignette"></div><div class="edge"></div></div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div class="top">
+    <div class="col">
+      <div class="stat gold"><span class="lab">ניקוד</span><span class="val" id="hScore">0</span></div>
+      <div class="stat"><span class="lab">שלב</span><span class="val" id="hLevel">1</span></div>
+    </div>
+    <div class="col center">
+      <div class="stat pink" id="hComboPill"><span class="lab">רצף</span><span class="val" id="hCombo">x1</span></div>
+      <div class="bars">
+        <div class="bar turbo"><i id="hTurbo"></i><span class="lab">טורבו</span></div>
+        <div class="bar dash"><i id="hDash"></i><span class="lab">דש</span></div>
+      </div>
+    </div>
+    <div class="col end">
+      <div class="stat"><span class="lab">זמן</span><span class="val" id="hTime">90</span><span class="lab">ש'</span></div>
+      <div class="hearts" id="hHearts"></div>
+      <div class="pips" id="hPips"></div>
+    </div>
+  </div>
+  <div id="comboBanner"></div>
+  <div id="toast"></div>
+  <div id="quiz">
+    <div class="medal">×</div>
+    <div class="meta"><span class="tagx" id="qTag">כפל</span></div>
+    <div class="q" id="qText"></div>
+    <div id="choices"></div>
+    <button id="skipBtn">דלג (עולה רצף −3)</button>
+  </div>
+  <div id="pudock"></div>
+  <div class="ach-toast" id="achToast"><div class="ic" id="achIc">🏆</div><div class="tx"><div class="t1">הישג</div><div class="t2" id="achTx"></div></div></div>
+</div>
+
+<!-- Mobile controls -->
+<div id="mobile"><div id="mob-turbo">טורבו</div><div id="mob-dash">דש</div></div>
+
+<!-- START -->
+<div class="screen" id="startScreen">
+  <div class="pgrid"></div>
+  <div class="cornerx" style="top:24px;right:30px">×</div>
+  <div class="cornerx" style="top:24px;left:30px">×</div>
+  <div class="cornerx" style="bottom:24px;right:30px">×</div>
+  <div class="cornerx" style="bottom:24px;left:30px">×</div>
+  <div class="tag">זירת הבלוקים • לוח הכפל</div>
+  <h1>כפל רויאל</h1>
+  <h2>תפתח תיבות, תפתור תרגילים, תאסוף אבנים!</h2>
+  <p>רוץ בזירה עם הבלוק שלך, פתח תיבות כפל וענה נכוחה. אסוף אבני בונוס, הפעל טורבו ודש, ועלה שלבים. המשחק מתאים את הרמה לפי ההצלחות והטעויות שלך — וזוכר את ההתקדמות שלך. או הזמן חבר לדו-קרב!</p>
+  <div class="row" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn bob" id="btnStartSolo">משחק יחיד</button>
+    <button class="btn alt" id="btnStartDuel">דו-קרב חברים</button>
+  </div>
+  <div class="keys">
+    <kbd>חצים / WASD</kbd><span>תנועה</span>
+    <kbd>Shift</kbd><span>טורבו</span>
+    <kbd>רווח</kbd><span>דש</span>
+    <kbd>1-4 / עכבר</kbd><span>תשובות</span>
+    <kbd>S</kbd><span>דילוג</span>
+    <kbd>Esc / P</kbd><span>השהיה</span>
+  </div>
+  <div id="startBest" style="color:var(--dim);font-weight:800;font-size:14px;"></div>
+  <p style="font-size:12px;color:var(--dim);">המשחק מתאים את הרמה אוטומטית • שיא: <span id="bestLabel">0</span></p>
+</div>
+
+<!-- LEVEL UP -->
+<div class="screen hidden" id="levelScreen">
+  <div class="pgrid"></div>
+  <div class="tag" style="color:var(--green);">✓ שלב הושלם</div>
+  <h1 id="lvTitle">שלב 2</h1>
+  <div class="stars" id="lvStars"></div>
+  <h2 id="lvSub">מצוין! אתה מתקדם</h2>
+  <div class="summary" id="lvSummary"></div>
+  <div id="lvUnlock" style="color:var(--gold);font-weight:800;font-size:15px;min-height:20px;"></div>
+  <button class="btn gold" id="btnNext">שלב הבא</button>
+</div>
+
+<!-- GAME OVER -->
+<div class="screen hidden" id="overScreen">
+  <div class="pgrid" style="opacity:.25;"></div>
+  <div class="tag" style="color:var(--red);">סיום</div>
+  <h1 id="ovTitle">נגמר המשחק</h1>
+  <div id="ovBest" style="min-height:30px;"></div>
+  <div class="summary" id="ovSummary"></div>
+  <button class="btn gold" id="btnRetry">שחק שוב</button>
+</div>
+
+<!-- PAUSE -->
+<div class="screen hidden" id="pauseScreen">
+  <div class="tag">מושהה</div>
+  <h1 style="font-size:clamp(34px,8vw,60px);">הפסקה</h1>
+  <div class="row" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn" id="btnResume">המשך</button>
+    <button class="btn alt" id="btnQuit">תפריט</button>
+  </div>
+</div>
+
+<!-- MULTIPLAYER -->
+<div class="screen hidden" id="mpScreen">
+  <div class="pgrid"></div>
+  <div class="tag">דו-קרב חברים</div>
+  <h1 style="font-size:clamp(34px,8vw,60px);">דו-קרב</h1>
+  <p>הזמן חבר לזירה ותתחרו מי פותר יותר תיבות כפל! צרי חדר ושתפי את הקוד, או הצטרפי עם קוד של חבר.</p>
+  <input id="mpNameInput" placeholder="השם שלך" maxlength="12" style="background:rgba(15,23,48,.6);border:1px solid rgba(34,211,238,.3);border-radius:12px;padding:10px 16px;color:#fff;font:800 16px var(--font-display);text-align:center;width:min(220px,80vw);">
+  <div class="row" style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn" id="btnHost">צור חדר</button>
+    <button class="btn alt" id="btnJoin">הצטרף</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <input id="mpJoinInput" placeholder="קוד חדר" maxlength="5" style="background:rgba(15,23,48,.6);border:1px solid rgba(244,114,182,.3);border-radius:12px;padding:10px 16px;color:#fff;font:900 18px var(--font-display);text-align:center;letter-spacing:2px;width:140px;text-transform:uppercase;">
+  </div>
+  <div id="mpLobby">
+    <div id="mpStatus" style="color:var(--dim);font-weight:800;min-height:24px;"></div>
+    <div id="mpCodeBox" style="display:none;">
+      <div style="color:var(--dim);font-size:13px;margin-top:8px;">קוד החדר:</div>
+      <div id="mpCodeDisplay" style="font:900 38px var(--font-display);color:var(--gold);letter-spacing:6px;text-shadow:0 0 18px var(--gold);"></div>
+      <button class="btn sm" id="btnCopy">העתק</button>
+    </div>
+  </div>
+  <div id="mpWaiting" class="hidden">
+    <div style="color:var(--green);font-weight:900;font-size:20px;">מחכה ליריב...</div>
+  </div>
+  <button class="btn sm" id="btnMpBack">חזרה</button>
+</div>
+
+<!-- ACHIEVEMENTS / SKINS drawer (on start screen) -->
+<div id="drawerToggle" style="position:fixed;bottom:18px;right:18px;z-index:31;pointer-events:auto;cursor:pointer;background:rgba(10,16,34,.8);border:2px solid var(--gold);border-radius:12px;padding:10px 14px;color:var(--gold);font:900 14px var(--font-display);box-shadow:0 0 16px rgba(251,191,36,.4);">🏆 הישגים</div>
+<div id="drawer" class="hidden" style="position:fixed;inset:0;z-index:32;background:rgba(7,11,24,.96);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:12px;overflow:auto;">
+  <h2 style="color:var(--gold);">הישגים וסקינים</h2>
+  <div id="achList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-width:600px;width:100%;"></div>
+  <h3 style="color:var(--cyan);margin-top:8px;">סקינים</h3>
+  <div id="skinGrid" class="skin-grid"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <label style="color:var(--ink);font-weight:700;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="setSound" checked> סאונד</label>
+    <label style="color:var(--ink);font-weight:700;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="setMusic" checked> מוזיקה</label>
+    <label style="color:var(--ink);font-weight:700;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="setReduce"> תנועה מופחתת</label>
+  </div>
+  <button class="btn sm" id="btnDrawerClose">סגור</button>
+</div>
+
+<script type="module" src="js/main.js"></script>
+<script>
+// Drawer + achievements list (non-module, simple DOM wiring)
+document.getElementById('drawerToggle').addEventListener('click', async () => {
+  const d = document.getElementById('drawer'); d.classList.toggle('hidden');
+  if (!d.classList.contains('hidden')) {
+    // populate achievements
+    const store = (await import('./js/core/storage.js')).store;
+    const ACHS = (await import('./js/data/config.js')).ACHIEVEMENTS;
+    const Screens = await import('./js/ui/screens.js');
+    const list = document.getElementById('achList'); list.innerHTML = '';
+    for (const a of ACHS) {
+      const got = store.hasAch(a.id);
+      const el = document.createElement('div'); el.style.cssText = `background:rgba(255,255,255,.04);border:1px solid ${got ? 'var(--gold)' : 'rgba(255,255,255,.1)'};border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px;${got ? '' : 'opacity:.5'}`;
+      el.innerHTML = `<span style="font-size:22px">${a.icon}</span><span style="font-weight:800;font-size:13px;color:${got ? 'var(--gold)' : 'var(--dim)'}">${a.name}</span>`;
+      list.appendChild(el);
+    }
+    // populate skins
+    const SKINS = (await import('./js/data/config.js')).SKINS;
+    const grid = document.getElementById('skinGrid'); grid.innerHTML = '';
+    for (const s of SKINS) {
+      const unlocked = store.hasSkin(s.id);
+      const c = document.createElement('div'); c.className = 'skin-card' + (unlocked ? '' : ' locked');
+      c.innerHTML = `<div class="skin-swatch" style="--sc:${s.body};--ac:${s.accent}"></div><div class="skin-name">${s.name}</div><div class="skin-stars">${unlocked ? '★ ' + s.stars : '🔒 ' + s.stars + '★'}</div>`;
+      grid.appendChild(c);
+    }
+  }
+});
+document.getElementById('btnDrawerClose').addEventListener('click', () => document.getElementById('drawer').classList.add('hidden'));
+document.getElementById('btnCopy').addEventListener('click', () => {
+  const code = document.getElementById('mpCodeDisplay').textContent;
+  if (navigator.clipboard) navigator.clipboard.writeText(code);
+  document.getElementById('btnCopy').textContent = 'הועתק!';
+  setTimeout(() => document.getElementById('btnCopy').textContent = 'העתק', 1500);
+});
+</script>
+</body>
+</html>
