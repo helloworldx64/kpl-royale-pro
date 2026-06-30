@@ -2,6 +2,8 @@
 // device.js — Device/platform detection & responsive sizing
 // ============================================================
 
+import { debounce } from './utils.js';
+
 class Device {
   constructor() {
     this.isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
@@ -56,5 +58,4 @@ class Device {
   vibrate(ms) { if (this.isMobile && navigator.vibrate) try { navigator.vibrate(ms); } catch {} }
 }
 
-import { debounce } from './utils.js';
 export const device = new Device();

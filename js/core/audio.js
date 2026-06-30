@@ -3,6 +3,8 @@
 // Synthesizes all SFX + adaptive background music.
 // ============================================================
 
+import { clamp } from './utils.js';
+
 class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -210,5 +212,4 @@ class AudioEngine {
   resume() { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); }
 }
 
-import { clamp } from './utils.js';
 export const audio = new AudioEngine();

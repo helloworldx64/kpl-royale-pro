@@ -4,6 +4,9 @@
 
 import { CONFIG } from '../data/config.js';
 
+// Deep-clone polyfill (structuredClone missing on older mobile browsers)
+const clone = (o) => { try { if (typeof structuredClone === 'function') return structuredClone(o); } catch {} return JSON.parse(JSON.stringify(o)); };
+
 const DEFAULTS = {
   schema: CONFIG.SAVE_SCHEMA,
   highScore: 0,
@@ -30,7 +33,7 @@ const DEFAULTS = {
 };
 
 class Store {
-  constructor() { this.d = structuredClone(DEFAULTS); this._load(); }
+  constructor() { this.d = clone(DEFAULTS); this._load(); }
 
   _load() {
     try {
@@ -40,7 +43,7 @@ class Store {
       if (parsed.schema !== CONFIG.SAVE_SCHEMA) {
         parsed = this._migrate(parsed);
       }
-      this.d = { ...structuredClone(DEFAULTS), ...parsed };
+      this.d = { ...clone(DEFAULTS), ...parsed };
       // deep-merge nested
       this.d.unlocks = { ...DEFAULTS.unlocks, ...(parsed.unlocks || {}) };
       this.d.settings = { ...DEFAULTS.settings, ...(parsed.settings || {}) };
@@ -90,7 +93,7 @@ class Store {
 
   hasAch(id) { return !!this.d.achievements[id]; }
 
-  reset() { this.d = structuredClone(DEFAULTS); this.save(); }
+  reset() { this.d = clone(DEFAULTS); this.save(); }
 }
 
 export const store = new Store();
